@@ -6,9 +6,9 @@ public class Game{
 
     Block[][] board;
 
-    public Game(int rows, int cols){
-        this.rows = rows;
-        this.cols = cols;
+    public Game(int boardSize){
+        this.rows = boardSize;
+        this.cols = boardSize;
         wid = width / cols;
 
         board = new Block[rows][cols];
@@ -37,16 +37,186 @@ public class Game{
     void assignNewBlock(){
         int[] availBlocks = getAvailBlocks();
         int newBlock = (int)random(availBlocks.length);
-        int r = availBlocks[newBlock] / rows;
-        int c = availBlocks[newBlock] % cols;
+        board[availBlocks[newBlock] / rows][availBlocks[newBlock] % cols].assign();
+    }
 
-        board[r][c].assign();
+    void update(){
+        drawBoard();
+        if(isGameOver())
+            surface.setTitle("Game Over");
+        
     }
 
     void drawBoard(){
         for(int r = 0; r < rows; r++)
             for(int c = 0; c < cols; c++)
                 board[r][c].draw(r, c, wid);
+    }
+
+    void moveUp(){
+        boolean moved = false;
+
+        for(int c = 0; c < cols; c++){
+            for(int r = 1; r < rows; r++){
+                if(board[r][c].isEmpty())
+                    continue;
+                
+                int moveToRow = r;
+                for(int moveTo = moveToRow-1; moveTo >= 0; moveTo--){
+                    if(board[moveTo][c].isEmpty())
+                        moveToRow = moveTo;
+                    else if(board[moveTo][c].equals(board[r][c])){
+                        moveToRow = moveTo;
+                        break;
+                    } else
+                        break;
+                }
+
+                if(moveToRow != r){
+                    if(board[moveToRow][c].isEmpty())
+                        board[moveToRow][c].newValue(board[r][c]);
+                    else
+                        board[moveToRow][c].merge();
+                    board[r][c].empty();
+                    moved = true;
+                }
+            }
+        }
+
+        if(moved)
+            assignNewBlock();
+    }
+
+    void moveDown(){
+        boolean moved = false;
+
+        for(int c = 0; c < cols; c++){
+            for(int r = rows-2; r >= 0; r--){
+                if(board[r][c].isEmpty())
+                    continue;
+
+                int moveToRow = r;
+                for(int moveTo = moveToRow+1; moveTo < rows; moveTo++){
+                    if(board[moveTo][c].isEmpty())
+                        moveToRow = moveTo;
+                    else if(board[moveTo][c].equals(board[r][c])){
+                        moveToRow = moveTo;
+                        break;
+                    } else
+                        break;
+                }
+
+                if(moveToRow != r){
+                    if(board[moveToRow][c].isEmpty())
+                        board[moveToRow][c].newValue(board[r][c]);
+                    else
+                        board[moveToRow][c].merge();
+                    board[r][c].empty();
+                    moved = true;
+                }
+            }
+        }
+
+        if(moved)
+            assignNewBlock();
+    }
+
+    void moveLeft(){
+        boolean moved = false;
+
+        for(int r = 0; r < rows; r++){
+            for(int c = 1; c < cols; c++){
+                if(board[r][c].isEmpty())
+                    continue;
+                
+                int moveToCol = c;
+                for(int moveTo = moveToCol-1; moveTo >= 0; moveTo--){
+                    if(board[r][moveTo].isEmpty())
+                        moveToCol = moveTo;
+                    else if(board[r][moveTo].equals(board[r][c])){
+                        moveToCol = moveTo;
+                        break;
+                    } else
+                        break;
+                }
+
+                if(moveToCol != c){
+                    if(board[r][moveToCol].isEmpty())
+                        board[r][moveToCol].newValue(board[r][c]);
+                    else
+                        board[r][moveToCol].merge();
+                    board[r][c].empty();
+                    moved = true;
+                }
+            }
+        }
+
+        if(moved)
+            assignNewBlock();
+    }
+
+    void moveRight(){
+        boolean moved = false;
+
+        for(int r = 0; r < rows; r++){
+            for(int c = cols-2; c >= 0; c--){
+                if(board[r][c].isEmpty())
+                    continue;
+                
+                int moveToCol = c;
+                for(int moveTo = moveToCol+1; moveTo < cols; moveTo++){
+                    if(board[r][moveTo].isEmpty())
+                        moveToCol = moveTo;
+                    else if(board[r][moveTo].equals(board[r][c])){
+                        moveToCol = moveTo;
+                        break;
+                    } else
+                        break;
+                }
+
+                if(moveToCol != c){
+                    if(board[r][moveToCol].isEmpty())
+                        board[r][moveToCol].newValue(board[r][c]);
+                    else
+                        board[r][moveToCol].merge();
+                    board[r][c].empty();
+                    moved = true;
+                }
+            }
+        }
+
+        if(moved)
+            assignNewBlock();
+    }
+
+    boolean isBoardFull(){
+        for(int r = 0; r < rows; r++)
+            for(int c = 0; c < cols; c++)
+                if(board[r][c].value == -1)
+                    return false;
+
+        return true;
+    }
+
+    boolean isMovePossible(){
+        if(isBoardFull()){
+            for(int i = 0; i < rows * cols; i++){
+                int r = i / rows;
+                int c = i % cols;
+
+                // Check above
+                if(r > 0 && board[r][c].equals(board[r-1][c]))
+                    return true;
+                // Check left
+                if(c > 0 && board[r][c].equals(board[r][c-1]))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    boolean isGameOver(){
+        return !isMovePossible();
     }
 }
 
@@ -73,8 +243,33 @@ class Block{
 
     void assign(){
         value = (int)random(100);
-        if(value < 75) value = 0;
-        else value = 1;
+        if(value < 75) 
+            value = 0;
+        else 
+            value = 1;
+
+        blockCol = blockCols[value];
+    }
+
+    boolean isEmpty(){
+        return value == -1;
+    }
+
+    void empty(){
+        value = -1;
+    }
+
+    boolean equals(Block other){
+        return value == other.value;
+    }
+
+    void newValue(Block other){
+        value = other.value;
+        blockCol = blockCols[value];
+    }
+
+    void merge(){
+        value++;
         blockCol = blockCols[value];
     }
 
