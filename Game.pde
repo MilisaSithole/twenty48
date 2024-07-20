@@ -2,6 +2,7 @@ import java.util.ArrayList;
 
 public class Game{
     int rows, cols;
+    int score = 0;
     float wid;
 
     Block[][] board;
@@ -19,7 +20,7 @@ public class Game{
         assignNewBlock();
         assignNewBlock();
 
-        surface.setTitle("Twenty48");
+        surface.setTitle("Twenty48 || Score: " + score);
         update();
     }
 
@@ -46,7 +47,9 @@ public class Game{
     void update(){
         drawBoard();
         if(isGameOver())
-            surface.setTitle("Game Over");
+            surface.setTitle("Game Over || Score: " + score);
+        else
+            surface.setTitle("Twenty48 || Score: " + score);
         
     }
 
@@ -78,8 +81,10 @@ public class Game{
                 if(moveToRow != r){
                     if(board[moveToRow][c].isEmpty())
                         board[moveToRow][c].newValue(board[r][c]);
-                    else
+                    else{
                         board[moveToRow][c].merge();
+                        score += board[moveToRow][c].calcScore();
+                    }
                     board[r][c].empty();
                     moved = true;
                 }
@@ -113,8 +118,10 @@ public class Game{
                 if(moveToRow != r){
                     if(board[moveToRow][c].isEmpty())
                         board[moveToRow][c].newValue(board[r][c]);
-                    else
+                    else{
                         board[moveToRow][c].merge();
+                        score += board[moveToRow][c].calcScore();
+                    }
                     board[r][c].empty();
                     moved = true;
                 }
@@ -148,8 +155,10 @@ public class Game{
                 if(moveToCol != c){
                     if(board[r][moveToCol].isEmpty())
                         board[r][moveToCol].newValue(board[r][c]);
-                    else
+                    else{
                         board[r][moveToCol].merge();
+                        score += board[r][moveToCol].calcScore();
+                    }
                     board[r][c].empty();
                     moved = true;
                 }
@@ -183,8 +192,10 @@ public class Game{
                 if(moveToCol != c){
                     if(board[r][moveToCol].isEmpty())
                         board[r][moveToCol].newValue(board[r][c]);
-                    else
+                    else{
                         board[r][moveToCol].merge();
+                        score += board[r][moveToCol].calcScore();
+                    }
                     board[r][c].empty();
                     moved = true;
                 }
@@ -199,7 +210,7 @@ public class Game{
     boolean isBoardFull(){
         for(int r = 0; r < rows; r++)
             for(int c = 0; c < cols; c++)
-                if(board[r][c].value == -1)
+                if(board[r][c].isEmpty())
                     return false;
 
         return true;
@@ -280,6 +291,10 @@ class Block{
     void merge(){
         value++;
         blockCol = blockCols[value];
+    }
+
+    int calcScore(){
+        return value * (int)Math.pow(2, value+1);
     }
 
     void draw(int r, int c, float w){
