@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 public class Game{
     int rows, cols;
@@ -54,6 +55,7 @@ public class Game{
     }
 
     void drawBoard(){
+        background(getAverageCol());
         for(int r = 0; r < rows; r++)
             for(int c = 0; c < cols; c++)
                 board[r][c].draw(r, c, wid);
@@ -238,6 +240,34 @@ public class Game{
     boolean isGameOver(){
         return !isMovePossible();
     }
+
+    color getAverageCol(){
+        int red = 39, green = 39, blue = 75;
+        int count = 2;
+
+        ArrayList<Integer> blockCols = new ArrayList<Integer>();
+        for(int i = 0; i < rows * cols; i++){
+            int r = i / rows;
+            int c = i % cols;
+            
+            if(!board[r][c].isEmpty())
+                blockCols.add(board[r][c].getCol());
+        }
+
+        LinkedHashSet<Integer> set = new LinkedHashSet<Integer>(blockCols);
+        blockCols.clear();
+        blockCols.addAll(set);
+
+        for(color blockCol: blockCols){
+            red += (int)red(blockCol);
+            green += (int)green(blockCol);
+            blue += (int)blue(blockCol);
+        }
+        count += blockCols.size();
+
+        color aveCol = color(red/count, green/count, blue/count);
+        return aveCol;
+    }
 }
 
 class Block{
@@ -267,7 +297,6 @@ class Block{
             value = 0;
         else 
             value = 1;
-
         blockCol = blockCols[value];
     }
 
@@ -297,6 +326,10 @@ class Block{
         return value * (int)Math.pow(2, value+1);
     }
 
+    color getCol(){
+        return blockCol;
+    }
+
     void draw(int r, int c, float w){
         if(value == -1) return;
 
@@ -306,7 +339,8 @@ class Block{
 
         fill(textCol);
         textAlign(CENTER, CENTER);
-        textSize(w / 2);
+        String num = String.valueOf((int)Math.pow(2, value+1));
+        textSize((w / 2) * map(num.length(), 1, 5, 1, 0.75));
         text((int)Math.pow(2, value+1), c * w + w/2, r * w + w/2);
     }
 }

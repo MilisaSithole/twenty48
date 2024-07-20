@@ -8,7 +8,6 @@ void setup() {
 }
 
 void draw() {
-    background(bg);    
     game.drawBoard();
 }
 
