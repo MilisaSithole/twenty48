@@ -9,7 +9,7 @@ void setup() {
 
 void draw() {
     background(bg);    
-    game.update();
+    game.drawBoard();
 }
 
 void keyPressed() {

@@ -18,6 +18,9 @@ public class Game{
 
         assignNewBlock();
         assignNewBlock();
+
+        surface.setTitle("Twenty48");
+        update();
     }
 
     int[] getAvailBlocks(){
@@ -85,6 +88,7 @@ public class Game{
 
         if(moved)
             assignNewBlock();
+            update();
     }
 
     void moveDown(){
@@ -119,6 +123,7 @@ public class Game{
 
         if(moved)
             assignNewBlock();
+            update();
     }
 
     void moveLeft(){
@@ -153,6 +158,7 @@ public class Game{
 
         if(moved)
             assignNewBlock();
+            update();
     }
 
     void moveRight(){
@@ -187,6 +193,7 @@ public class Game{
 
         if(moved)
             assignNewBlock();
+            update();
     }
 
     boolean isBoardFull(){
@@ -211,7 +218,9 @@ public class Game{
                 if(c > 0 && board[r][c].equals(board[r][c-1]))
                     return true;
             }
-        }
+        } else 
+            return true;
+
         return false;
     }
 
